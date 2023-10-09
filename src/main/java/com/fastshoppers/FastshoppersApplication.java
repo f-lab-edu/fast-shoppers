@@ -1,4 +1,4 @@
-package com.example.fastshoppers;
+package com.fastshoppers;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

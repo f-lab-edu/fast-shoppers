@@ -1,4 +1,4 @@
-package com.example.fastshoppers;
+package com.fastshoppers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
