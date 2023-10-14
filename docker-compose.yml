@@ -8,12 +8,3 @@ services:
       MYSQL_DATABASE: fast-shoppers-db
     ports:
       - "3307:3306"
-  application:
-    build:
-      context: .  # 현재 디렉토리 (프로젝트 루트)에서 Dockerfile을 찾음
-      dockerfile: Dockerfile  # 사용할 Dockerfile의 이름
-    container_name: fast-shoppers
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mysql
