@@ -1,9 +1,10 @@
 package com.fastshoppers.exception.handler;
 
+import com.fastshoppers.common.LogLevel;
 import com.fastshoppers.common.ResponseMessage;
 import com.fastshoppers.exception.BaseException;
-import com.fastshoppers.exception.LoginFailException;
-import com.fastshoppers.exception.UserNotFoundException;
+import com.fastshoppers.exception.logger.ExceptionLogger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,31 +14,37 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseMessage handleRuntimeException(RuntimeException runtimeException) {
-        return new ResponseMessage(runtimeException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+    private final ExceptionLogger exceptionLogger;
+
+    @Autowired
+    public GlobalExceptionHandler(ExceptionLogger exceptionLogger) {
+        this.exceptionLogger = exceptionLogger;
     }
 
     @ExceptionHandler(BaseException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseMessage handleBaseException(BaseException baseException) {
-        return new ResponseMessage(baseException.getMessage(), baseException.getHttpStatus().value());
+        exceptionLogger.log(baseException.getLogLevel(), baseException.getMessage(), baseException.getStackTrace());
+        return new ResponseMessage(baseException.getMessage(), baseException.getHttpStatus().value(), baseException.getExceptionCode());
     }
 
-    @ExceptionHandler(LoginFailException.class)
+
+    @ExceptionHandler(RuntimeException.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseMessage handleLoginFailException(LoginFailException loginFailException) {
-        return new ResponseMessage(loginFailException.getMessage(), loginFailException.getHttpStatus().value());
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseMessage handleRuntimeException(RuntimeException runtimeException) {
+        exceptionLogger.log(LogLevel.ERROR, runtimeException.getMessage(), runtimeException.getStackTrace());
+        return new ResponseMessage(runtimeException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(Exception.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseMessage handleUserNotFoundException(UserNotFoundException userNotFoundException) {
-        return new ResponseMessage(userNotFoundException.getMessage(), userNotFoundException.getHttpStatus().value());
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseMessage handleOtherExceptions(Exception exception) {
+        exceptionLogger.log(LogLevel.ERROR, exception.getMessage(), exception.getStackTrace());
+        return new ResponseMessage(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
+
+
 }
