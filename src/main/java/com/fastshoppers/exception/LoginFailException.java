@@ -13,4 +13,8 @@ public class LoginFailException extends BaseException {
     public LoginFailException(String message) {
         super(message, HttpStatus.UNAUTHORIZED, StatusCode.USER_UNAUTHORIZED.getCode(), LogLevel.ERROR);
     }
+
+    public LoginFailException(String message, LogLevel logLevel) {
+        super(message, HttpStatus.UNAUTHORIZED, StatusCode.USER_UNAUTHORIZED.getCode(), logLevel);
+    }
 }

@@ -13,4 +13,8 @@ public class UserNotFoundException extends BaseException {
     public UserNotFoundException(String message) {
         super(message, HttpStatus.NOT_FOUND, StatusCode.USER_NOT_FOUND.getCode(), LogLevel.ERROR);
     }
+
+    public UserNotFoundException(String message, LogLevel logLevel) {
+        super(message, HttpStatus.NOT_FOUND, StatusCode.USER_NOT_FOUND.getCode(), logLevel);
+    }
 }
