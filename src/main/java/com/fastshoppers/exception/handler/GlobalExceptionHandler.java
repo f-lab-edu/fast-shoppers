@@ -25,8 +25,14 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseMessage handleBaseException(BaseException baseException) {
+
         exceptionLogger.log(baseException.getLogLevel(), baseException.getMessage(), baseException.getStackTrace());
-        return new ResponseMessage(baseException.getMessage(), baseException.getHttpStatus().value(), baseException.getExceptionCode());
+
+        return ResponseMessage.builder()
+                .message(baseException.getMessage())
+                .status(baseException.getHttpStatus().value())
+                .statusCode(baseException.getExceptionCode())
+                .build();
     }
 
 
@@ -34,16 +40,28 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseMessage handleRuntimeException(RuntimeException runtimeException) {
+
         exceptionLogger.log(LogLevel.ERROR, runtimeException.getMessage(), runtimeException.getStackTrace());
-        return new ResponseMessage(runtimeException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        return ResponseMessage.builder()
+                .message(runtimeException.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                .build();
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseMessage handleOtherExceptions(Exception exception) {
+
         exceptionLogger.log(LogLevel.ERROR, exception.getMessage(), exception.getStackTrace());
-        return new ResponseMessage(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+        return ResponseMessage.builder()
+                .message(exception.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.name())
+                .build();
     }
 
 
