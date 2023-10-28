@@ -18,6 +18,7 @@ public class ExceptionLogger {
         if (stackTraceElements != null && stackTraceElements.length > 0) {
             // StackTraceElement 받아와서 한 줄씩 돌면서 로그 찍기
             for (StackTraceElement stackTraceElement : stackTraceElements) {
+                logMessage.append("======================================================\n");
                 String className = stackTraceElement.getClassName();
                 String methodName = stackTraceElement.getMethodName();
                 String fileName = stackTraceElement.getFileName();
