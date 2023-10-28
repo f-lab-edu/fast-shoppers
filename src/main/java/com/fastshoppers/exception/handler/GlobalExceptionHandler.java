@@ -35,21 +35,6 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseMessage handleRuntimeException(RuntimeException runtimeException) {
-
-        exceptionLogger.log(LogLevel.ERROR, runtimeException.getMessage(), runtimeException.getStackTrace());
-
-        return ResponseMessage.builder()
-                .message(runtimeException.getMessage())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.name())
-                .build();
-    }
-
     @ExceptionHandler(Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
