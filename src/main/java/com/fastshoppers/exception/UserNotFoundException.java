@@ -7,14 +7,24 @@ import org.springframework.http.HttpStatus;
 public class UserNotFoundException extends BaseException {
 
     public UserNotFoundException() {
-        super("User Not Found.", HttpStatus.NOT_FOUND, StatusCode.USER_NOT_FOUND.getCode(), LogLevel.ERROR);
+        super("User Not Found.", LogLevel.ERROR);
     }
 
     public UserNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND, StatusCode.USER_NOT_FOUND.getCode(), LogLevel.ERROR);
+        super(message, LogLevel.ERROR);
     }
 
     public UserNotFoundException(String message, LogLevel logLevel) {
-        super(message, HttpStatus.NOT_FOUND, StatusCode.USER_NOT_FOUND.getCode(), logLevel);
+        super(message, logLevel);
+    }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return HttpStatus.NOT_FOUND;
+    }
+
+    @Override
+    public String getExceptionCode() {
+        return StatusCode.USER_NOT_FOUND.getCode();
     }
 }

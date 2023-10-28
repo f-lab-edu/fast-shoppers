@@ -7,14 +7,24 @@ import org.springframework.http.HttpStatus;
 public class LoginFailException extends BaseException {
 
     public LoginFailException() {
-        super("Login failed.", HttpStatus.UNAUTHORIZED, StatusCode.USER_UNAUTHORIZED.getCode(), LogLevel.ERROR);
+        super("Login failed.", LogLevel.ERROR);
     }
 
     public LoginFailException(String message) {
-        super(message, HttpStatus.UNAUTHORIZED, StatusCode.USER_UNAUTHORIZED.getCode(), LogLevel.ERROR);
+        super(message, LogLevel.ERROR);
     }
 
     public LoginFailException(String message, LogLevel logLevel) {
-        super(message, HttpStatus.UNAUTHORIZED, StatusCode.USER_UNAUTHORIZED.getCode(), logLevel);
+        super(message, logLevel);
+    }
+
+    @Override
+    public HttpStatus getHttpStatus() {
+        return HttpStatus.UNAUTHORIZED;
+    }
+
+    @Override
+    public String getExceptionCode() {
+        return StatusCode.USER_UNAUTHORIZED.getCode();
     }
 }
