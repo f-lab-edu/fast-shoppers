@@ -9,14 +9,33 @@ import org.springframework.stereotype.Component;
 public class ExceptionLogger {
 
     public void log(LogLevel logLevel, String message, StackTraceElement[] stackTraceElements) {
-        StringBuffer logMessage = new StringBuffer(message);
-        if (stackTraceElements != null && stackTraceElements.length > 0) {
-            StackTraceElement thrower = stackTraceElements[0]; // 몇 번째 Element 호출할지는 추후 개발 되는 depth보고 수정
-            String className = thrower.getClassName();
-            String methodName = thrower.getMethodName();
-            logMessage.append("[Exception Class and Name is : ").append(className).append(".").append(methodName).append("]");
+        StringBuffer logMessage = new StringBuffer();
+
+        if (message != null && !message.isEmpty()) {
+            logMessage.append("[Custom Message: ").append(message).append("]\n");
         }
 
+        if (stackTraceElements != null && stackTraceElements.length > 0) {
+            // StackTraceElement 받아와서 한 줄씩 돌면서 로그 찍기
+            for (StackTraceElement stackTraceElement : stackTraceElements) {
+                String className = stackTraceElement.getClassName();
+                String methodName = stackTraceElement.getMethodName();
+                String fileName = stackTraceElement.getFileName();
+                int lineNumber = stackTraceElement.getLineNumber();
+                logMessage.append("[Stack Trace Info : ")
+                        .append(className)
+                        .append(".")
+                        .append(methodName)
+                        .append("]")
+                        .append(" at ")
+                        .append(fileName)
+                        .append(", LineNumber : ")
+                        .append(lineNumber)
+                        .append("\n");
+            }
+        }
+
+        // logLevel 동적으로 받아 상이하게 처리
         switch (logLevel) {
             case DEBUG:
                 log.debug(logMessage.toString());
