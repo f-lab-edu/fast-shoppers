@@ -1,6 +1,7 @@
 package com.fastshoppers.exception.logger;
 
 import com.fastshoppers.common.LogLevel;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -8,8 +9,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionLogger {
 
-    public void log(LogLevel logLevel, String message, StackTraceElement[] stackTraceElements) {
+    public void log(LogLevel logLevel, String message, StackTraceElement[] stackTraceElements, HttpServletRequest request) {
         StringBuffer logMessage = new StringBuffer();
+
+        if(request != null) {
+            logMessage.append("[Request Info : ]\n");
+            logMessage.append("Method: ").append(request.getMethod()).append("\n");
+            logMessage.append("URI: ").append(request.getRequestURI()).append("\n");
+            logMessage.append("Parameters: ").append(request.getQueryString()).append("\n");
+        }
 
         if (message != null && !message.isEmpty()) {
             logMessage.append("[Custom Message: ").append(message).append("]\n");

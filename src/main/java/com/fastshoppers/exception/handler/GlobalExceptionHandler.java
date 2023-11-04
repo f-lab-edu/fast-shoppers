@@ -4,6 +4,7 @@ import com.fastshoppers.common.LogLevel;
 import com.fastshoppers.common.ResponseMessage;
 import com.fastshoppers.exception.BaseException;
 import com.fastshoppers.exception.logger.ExceptionLogger;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,9 +25,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseMessage handleBaseException(BaseException baseException) {
+    public ResponseMessage handleBaseException(BaseException baseException, HttpServletRequest httpServletRequest) {
 
-        exceptionLogger.log(baseException.getLogLevel(), baseException.getMessage(), baseException.getStackTrace());
+        exceptionLogger.log(baseException.getLogLevel(), baseException.getMessage(), baseException.getStackTrace(), httpServletRequest);
 
         return ResponseMessage.builder()
                 .message(baseException.getMessage())
@@ -38,9 +39,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseMessage handleOtherExceptions(Exception exception) {
+    public ResponseMessage handleOtherExceptions(Exception exception, HttpServletRequest httpServletRequest) {
 
-        exceptionLogger.log(LogLevel.ERROR, exception.getMessage(), exception.getStackTrace());
+        exceptionLogger.log(LogLevel.ERROR, exception.getMessage(), exception.getStackTrace(), httpServletRequest);
 
         return ResponseMessage.builder()
                 .message(exception.getMessage())
