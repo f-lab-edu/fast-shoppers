@@ -5,12 +5,10 @@ import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
 import com.fastshoppers.model.MemberDto;
 import com.fastshoppers.repository.MemberRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -29,11 +27,6 @@ public class MemberServiceTest {
 
     @InjectMocks
     private MemberService memberService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void whenRegisterWithExistingEmail_thenThrowDuplicationEmailException() {
