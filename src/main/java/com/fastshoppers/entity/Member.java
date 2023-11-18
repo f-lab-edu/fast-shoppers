@@ -1,15 +1,16 @@
 package com.fastshoppers.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 public class Member {
 
@@ -31,4 +32,23 @@ public class Member {
 
     @Column(name = "delete_yn", nullable = false, length = 1)
     private String deleteYn;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Timestamp.valueOf(LocalDateTime.now());
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+        deleteYn = "N"; // 생성 시에 "N"로 설정
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+    }
+
+    @PreRemove
+    protected void onDelete() {
+        updatedAt = Timestamp.valueOf(LocalDateTime.now());
+        deleteYn = "Y";
+    }
+
 }
