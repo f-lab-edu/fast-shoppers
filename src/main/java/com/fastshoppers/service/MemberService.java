@@ -38,7 +38,7 @@ public class MemberService {
             throw new InvalidPasswordException();
         }
 
-        Member member = converToEntity(memberDto);
+        Member member = convertToEntity(memberDto);
 
         return memberRepository.save(member);
     }
@@ -48,7 +48,7 @@ public class MemberService {
      * @param memberDto
      * @return Member
      */
-    private Member converToEntity(MemberDto memberDto) {
+    private Member convertToEntity(MemberDto memberDto) {
         Member member = new Member();
         member.setEmail(memberDto.getEmail());
         member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
