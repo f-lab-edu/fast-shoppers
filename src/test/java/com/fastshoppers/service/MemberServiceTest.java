@@ -51,7 +51,6 @@ public class MemberServiceTest {
     void whenRegisterWithInvalidPassword_thenThrowInvalidPasswordException() {
         // Given
         MemberDto memberDto = new MemberDto("test2@google.com","1234");
-        when(memberRepository.findByEmail(memberDto.getEmail())).thenReturn(null);
 
         assertThrows(InvalidPasswordException.class, () -> {
             memberService.registerMember(memberDto);
