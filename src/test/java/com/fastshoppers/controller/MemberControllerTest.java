@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(MemberController.class)
+@MockBean(JpaMetamodelMappingContext.class)
 @Import(ExceptionLogger.class)
 public class MemberControllerTest {
 
@@ -56,7 +58,7 @@ public class MemberControllerTest {
         given(memberService.registerMember(any(MemberDto.class))).willReturn(new Member());
 
         // when then
-        mockMvc.perform(post("/members/register")
+        mockMvc.perform(post("/members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberDto))
                         .with(csrf()))
