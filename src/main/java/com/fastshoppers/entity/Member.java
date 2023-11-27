@@ -2,8 +2,9 @@ package com.fastshoppers.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.sql.Timestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,12 +12,13 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @ToString
 public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int memberNum;
+    private int id;
 
     @Column(nullable = false, length = 255)
     private String email;
@@ -24,31 +26,15 @@ public class Member {
     @Column(nullable = false, length = 255)
     private String password;
 
+    @CreatedDate
     @Column(name = "created_at", nullable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
-    @Column(name = "delete_yn", nullable = false, length = 1)
+    @Column(name = "delete_yn", nullable = false, length = 1, columnDefinition = "char(1)")
     private String deleteYn;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Timestamp.valueOf(LocalDateTime.now());
-        updatedAt = Timestamp.valueOf(LocalDateTime.now());
-        deleteYn = "N"; // 생성 시에 "N"로 설정
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Timestamp.valueOf(LocalDateTime.now());
-    }
-
-    @PreRemove
-    protected void onDelete() {
-        updatedAt = Timestamp.valueOf(LocalDateTime.now());
-        deleteYn = "Y";
-    }
 
 }
