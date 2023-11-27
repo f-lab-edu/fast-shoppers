@@ -20,12 +20,12 @@ public class MemberRepositoryTest {
         Member member = new Member();
         member.setEmail("test1234@google.com");
         member.setPassword("test123456");
-
+        member.setDeleteYn("N");
         // When
         Member savedMember = memberRepository.save(member);
 
         // Then
-        assertNotNull(savedMember.getMemberNum());
+        assertNotNull(savedMember.getId());
         assertEquals("test1234@google.com", savedMember.getEmail());
     }
 }
