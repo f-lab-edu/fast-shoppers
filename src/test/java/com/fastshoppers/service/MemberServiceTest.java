@@ -3,7 +3,7 @@ package com.fastshoppers.service;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
-import com.fastshoppers.model.MemberDto;
+import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.repository.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,29 +31,29 @@ public class MemberServiceTest {
     @Test
     void whenRegisterWithExistingEmail_thenThrowDuplicationEmailException() {
         // Given
-        MemberDto memberDto = new MemberDto("test1234@google.com", "test1234");
+        MemberRequest memberRequest = new MemberRequest("test1234@google.com", "test1234");
         // 새 멤버 객체로 반환되어 메일이 존재함
-        when(memberRepository.findByEmail(memberDto.getEmail())).thenReturn(new Member());
+        when(memberRepository.findByEmail(memberRequest.getEmail())).thenReturn(new Member());
 
         assertThrows(DuplicateEmailException.class, () -> {
-            memberService.registerMember(memberDto);
+            memberService.registerMember(memberRequest);
         });
     }
 
     @Test
     void whenRegisterWithInvalidPassword_thenThrowInvalidPasswordException() {
         // Given
-        MemberDto memberDto = new MemberDto("test2@google.com","1234");
+        MemberRequest memberRequest = new MemberRequest("test2@google.com","1234");
 
         assertThrows(InvalidPasswordException.class, () -> {
-            memberService.registerMember(memberDto);
+            memberService.registerMember(memberRequest);
         });
     }
 
     @Test
     void whenRegisterWithValidEmailAndPassword_thenSucceed() {
         // Given
-        MemberDto memberDto = new MemberDto("newuser@example.com", "Password1234");
+        MemberRequest memberDto = new MemberRequest("newuser@example.com", "Password1234");
         Member expectedMember = new Member();
         expectedMember.setEmail(memberDto.getEmail());
         expectedMember.setPassword("encodedPassword");

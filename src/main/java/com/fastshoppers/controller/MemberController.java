@@ -1,13 +1,9 @@
 package com.fastshoppers.controller;
 
 import com.fastshoppers.common.ResponseMessage;
-import com.fastshoppers.common.StatusCode;
-import com.fastshoppers.entity.Member;
-import com.fastshoppers.model.MemberDto;
+import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,9 +17,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping
-    public ResponseMessage registerMember(@RequestBody MemberDto memberDto) {
+    public ResponseMessage registerMember(@RequestBody MemberRequest memberRequest) {
 
-        memberService.registerMember(memberDto);
+        memberService.registerMember(memberRequest);
 
         return ResponseMessage.ok();
     }

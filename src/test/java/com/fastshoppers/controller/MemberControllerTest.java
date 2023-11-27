@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fastshoppers.common.StatusCode;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.logger.ExceptionLogger;
-import com.fastshoppers.model.MemberDto;
+import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,11 +43,11 @@ public class MemberControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private MemberDto memberDto;
+    private MemberRequest memberRequest;
 
     @BeforeEach
     void setUp() {
-        memberDto = new MemberDto("newuser@example.com", "Password1234");
+        memberRequest = new MemberRequest("newuser@example.com", "Password1234");
     }
 
 
@@ -55,17 +55,17 @@ public class MemberControllerTest {
     @WithMockUser
     void registerMember() throws Exception {
         // Given
-        given(memberService.registerMember(any(MemberDto.class))).willReturn(new Member());
+        given(memberService.registerMember(any(MemberRequest.class))).willReturn(new Member());
 
         // when then
         mockMvc.perform(post("/members")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(memberDto))
+                        .content(objectMapper.writeValueAsString(memberRequest))
                         .with(csrf()))
                 .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
                 .andExpect(jsonPath("$.statusCode").value(StatusCode.OK.getCode()));
 
-        then(memberService).should().registerMember(any(MemberDto.class));
+        then(memberService).should().registerMember(any(MemberRequest.class));
     }
 }
 

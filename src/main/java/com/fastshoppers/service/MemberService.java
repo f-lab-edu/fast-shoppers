@@ -3,13 +3,11 @@ package com.fastshoppers.service;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
-import com.fastshoppers.model.MemberDto;
+import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.sql.Timestamp;
 import java.util.regex.Pattern;
 
 @Service
@@ -26,32 +24,32 @@ public class MemberService {
 
     /**
      * @description: 회원가입 비즈니스 로직. 이메일 중복 확인, password 유효성 검사 후 멤버 디비 저장
-     * @param memberDto
+     * @param memberRequest
      * @return Member
      */
-    public Member registerMember(MemberDto memberDto) {
-        if (memberRepository.findByEmail(memberDto.getEmail()) != null) {
+    public Member registerMember(MemberRequest memberRequest) {
+        if (memberRepository.findByEmail(memberRequest.getEmail()) != null) {
             throw new DuplicateEmailException();
         }
 
-        if(!isValidPassword(memberDto.getPassword())) {
+        if(!isValidPassword(memberRequest.getPassword())) {
             throw new InvalidPasswordException();
         }
 
-        Member member = convertToEntity(memberDto);
+        Member member = convertToEntity(memberRequest);
 
         return memberRepository.save(member);
     }
 
     /**
      * @description: DTO -> Entity로 변환하는 메서드
-     * @param memberDto
+     * @param memberRequest
      * @return Member
      */
-    private Member convertToEntity(MemberDto memberDto) {
+    private Member convertToEntity(MemberRequest memberRequest) {
         Member member = new Member();
-        member.setEmail(memberDto.getEmail());
-        member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
+        member.setEmail(memberRequest.getEmail());
+        member.setPassword(passwordEncoder.encode(memberRequest.getPassword()));
         return member;
     }
 
