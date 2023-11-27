@@ -5,6 +5,7 @@ import com.fastshoppers.common.StatusCode;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.model.MemberDto;
 import com.fastshoppers.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,24 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/members")
+@RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
-    @Autowired
-    public MemberController(MemberService memberService) {
-        this.memberService = memberService;
-    }
-
-    @PostMapping("/register")
+    @PostMapping
     public ResponseMessage registerMember(@RequestBody MemberDto memberDto) {
 
-        Member registeredMember = memberService.registerMember(memberDto);
+        memberService.registerMember(memberDto);
 
-        return ResponseMessage.builder()
-                .status(HttpStatus.OK.value())
-                .statusCode(StatusCode.OK.getCode())
-                .build();
+        return ResponseMessage.ok();
     }
 
 }
