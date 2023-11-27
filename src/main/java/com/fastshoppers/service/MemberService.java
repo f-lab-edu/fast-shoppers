@@ -52,10 +52,6 @@ public class MemberService {
         Member member = new Member();
         member.setEmail(memberDto.getEmail());
         member.setPassword(passwordEncoder.encode(memberDto.getPassword()));
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        member.setCreatedAt(timestamp);
-        member.setUpdatedAt(timestamp);
-        member.setDeleteYn("N");
         return member;
     }
 
