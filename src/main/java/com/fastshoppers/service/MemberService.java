@@ -5,8 +5,8 @@ import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
 import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.repository.MemberRepository;
+import com.fastshoppers.util.PasswordEncryptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.regex.Pattern;
 
@@ -14,12 +14,10 @@ import java.util.regex.Pattern;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -49,7 +47,7 @@ public class MemberService {
     private Member convertToEntity(MemberRequest memberRequest) {
         Member member = new Member();
         member.setEmail(memberRequest.getEmail());
-        member.setPassword(passwordEncoder.encode(memberRequest.getPassword()));
+        member.setPassword(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword()));
         return member;
     }
 
