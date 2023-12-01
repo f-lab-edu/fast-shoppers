@@ -58,7 +58,7 @@ public class MemberControllerTest {
         given(memberService.registerMember(any(MemberRequest.class))).willReturn(new Member());
 
         // when then
-        mockMvc.perform(post("/members")
+        mockMvc.perform(post("/api/v1/members")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberRequest))
                         .with(csrf()))
