@@ -17,7 +17,7 @@
 
 ## 기술 스택
 
-- 백엔드: Java, Spring Boot, JPA, Gradle, JWT
+- 백엔드: Java, Spring Boot, JPA, Gradle, JWT, Junit
 - 데이터베이스: MySQL, Redis
-- 기타: Docker
+- 기타: Docker, jacoco
 
