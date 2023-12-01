@@ -3,8 +3,12 @@ package com.fastshoppers.service;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
+import com.fastshoppers.exception.LoginFailException;
+import com.fastshoppers.exception.MemberNotFoundException;
 import com.fastshoppers.model.MemberRequest;
+import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
+import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,9 +19,15 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
+    private final JwtUtil jwtUtil;
+
+    private final RedisService redisService;
+
     @Autowired
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil, RedisService redisService) {
         this.memberRepository = memberRepository;
+        this.jwtUtil = jwtUtil;
+        this.redisService = redisService;
     }
 
     /**
@@ -38,6 +48,30 @@ public class MemberService {
         member.setDeleteYn("N");
 
         return memberRepository.save(member);
+    }
+
+    public TokenResponse login(MemberRequest memberRequest) {
+        Member member = memberRepository.findByEmail(memberRequest.getEmail());
+
+        if(member == null) {
+            throw new MemberNotFoundException();
+        }
+
+        String hashedPassword = PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword());
+
+        if(!member.getPassword().equals(hashedPassword)) {
+            throw new LoginFailException();
+        }
+
+        String accessToken = jwtUtil.generateAccessToken(member.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
+
+        redisService.saveRefreshToken(member.getEmail(), refreshToken, 7 * 24 * 60 * 60);
+
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     /**
