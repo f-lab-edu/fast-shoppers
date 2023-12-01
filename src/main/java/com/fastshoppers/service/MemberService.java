@@ -35,7 +35,7 @@ public class MemberService {
         }
 
         Member member = convertToEntity(memberRequest);
-        member.setDeleteYn("N");
+        member.setDeleteYn(false);
 
         return memberRepository.save(member);
     }
