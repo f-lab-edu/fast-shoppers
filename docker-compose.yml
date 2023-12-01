@@ -8,3 +8,8 @@ services:
       MYSQL_DATABASE: fast-shoppers-db
     ports:
       - "3307:3306"
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - "6379:6379"
