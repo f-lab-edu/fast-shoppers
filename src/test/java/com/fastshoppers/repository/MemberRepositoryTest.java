@@ -20,7 +20,7 @@ public class MemberRepositoryTest {
         Member member = new Member();
         member.setEmail("test1234@google.com");
         member.setPassword("test123456");
-        member.setDeleteYn("N");
+        member.setDeleteYn(false);
         // When
         Member savedMember = memberRepository.save(member);
 
