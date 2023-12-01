@@ -3,8 +3,13 @@ package com.fastshoppers.service;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
+import com.fastshoppers.exception.LoginFailException;
+import com.fastshoppers.exception.MemberNotFoundException;
 import com.fastshoppers.model.MemberRequest;
+import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
+import com.fastshoppers.util.JwtUtil;
+import com.fastshoppers.util.PasswordEncryptionUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -20,6 +26,9 @@ public class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private MemberService memberService;
@@ -64,6 +73,51 @@ public class MemberServiceTest {
         assertEquals(registeredMember.getEmail(), memberDto.getEmail());
         assertEquals("encodedPassword", registeredMember.getPassword());
 
+    }
+
+    @Test
+    void login_Failure_MemberNotFound() {
+        MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+        when(memberRepository.findByEmail(anyString())).thenReturn(null);
+
+        assertThrows(MemberNotFoundException.class, () -> {
+            memberService.login(memberRequest);
+        });
+    }
+
+    @Test
+    void login_Failure_IncorrectPassword() {
+        MemberRequest memberRequest = new MemberRequest("user@google.com", "notmatchedPassword123");
+        Member member = new Member();
+        member.setEmail("user@google.com");
+        member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+
+        when(memberRepository.findByEmail(anyString())).thenReturn(member);
+
+        assertThrows(LoginFailException.class, ()->{
+            memberService.login(memberRequest);
+        });
+    }
+
+    @Test
+    void login_Successful() {
+        MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+        Member member = new Member();
+        member.setEmail("user@google.com");
+        member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+
+        String expectedAccessToken = "access.token.string";
+        String expectedRefreshToken = "refresh.token.string";
+
+        when(memberRepository.findByEmail(anyString())).thenReturn(member);
+        when(jwtUtil.generateAccessToken(anyString())).thenReturn(expectedAccessToken);
+        when(jwtUtil.generateRefreshToken(anyString())).thenReturn(expectedRefreshToken);
+
+        TokenResponse tokenResponse = memberService.login(memberRequest);
+
+        assertNotNull(tokenResponse);
+        assertEquals(expectedAccessToken, tokenResponse.getAccessToken());
+        assertEquals(expectedRefreshToken, tokenResponse.getRefreshToken());
     }
 
 }
