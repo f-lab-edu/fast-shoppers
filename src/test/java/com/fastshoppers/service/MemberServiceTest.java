@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -29,6 +30,9 @@ public class MemberServiceTest {
 
     @Mock
     private JwtUtil jwtUtil;
+
+    @Mock
+    private RedisService redisService;
 
     @InjectMocks
     private MemberService memberService;
@@ -118,6 +122,15 @@ public class MemberServiceTest {
         assertNotNull(tokenResponse);
         assertEquals(expectedAccessToken, tokenResponse.getAccessToken());
         assertEquals(expectedRefreshToken, tokenResponse.getRefreshToken());
+    }
+
+    @Test
+    void logout_Successful() {
+        MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+
+        memberService.logout(memberRequest);
+
+        then(redisService).should().deleteRefreshToken(memberRequest.getEmail());
     }
 
 }
