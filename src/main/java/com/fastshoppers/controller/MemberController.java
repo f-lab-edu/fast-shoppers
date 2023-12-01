@@ -33,5 +33,12 @@ public class MemberController {
         return ResponseMessage.ok(tokenResponse);
     }
 
+    @PostMapping("/logout")
+    public ResponseMessage logout(@RequestBody MemberRequest memberRequest) {
+
+        memberService.logout(memberRequest);
+
+        return ResponseMessage.ok();
+    }
 
 }
