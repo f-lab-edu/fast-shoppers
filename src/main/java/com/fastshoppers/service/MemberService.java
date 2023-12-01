@@ -96,5 +96,11 @@ public class MemberService {
         return Pattern.matches(passwordPattern, password);
     }
 
-
+    /**
+     * @description : 로그아웃 메서드. redis에서 refreshToken을 삭제한다.
+     * @param memberRequest
+     */
+    public void logout(MemberRequest memberRequest) {
+        redisService.deleteRefreshToken(memberRequest.getEmail());
+    }
 }
