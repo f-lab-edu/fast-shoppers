@@ -4,17 +4,17 @@ import com.fastshoppers.common.StatusCode;
 import com.fastshoppers.common.LogLevel;
 import org.springframework.http.HttpStatus;
 
-public class UserNotFoundException extends BaseException {
+public class MemberNotFoundException extends BaseException {
 
-    public UserNotFoundException() {
+    public MemberNotFoundException() {
         super("User Not Found.", LogLevel.ERROR);
     }
 
-    public UserNotFoundException(String message) {
+    public MemberNotFoundException(String message) {
         super(message, LogLevel.ERROR);
     }
 
-    public UserNotFoundException(String message, LogLevel logLevel) {
+    public MemberNotFoundException(String message, LogLevel logLevel) {
         super(message, logLevel);
     }
 
@@ -25,6 +25,6 @@ public class UserNotFoundException extends BaseException {
 
     @Override
     public String getExceptionCode() {
-        return StatusCode.USER_NOT_FOUND.getCode();
+        return StatusCode.MEMBER_NOT_FOUND.getCode();
     }
 }

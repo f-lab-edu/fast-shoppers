@@ -25,6 +25,6 @@ public class LoginFailException extends BaseException {
 
     @Override
     public String getExceptionCode() {
-        return StatusCode.USER_UNAUTHORIZED.getCode();
+        return StatusCode.MEMBER_UNAUTHORIZED.getCode();
     }
 }
