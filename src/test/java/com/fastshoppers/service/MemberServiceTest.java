@@ -1,5 +1,16 @@
 package com.fastshoppers.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.*;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
@@ -10,127 +21,116 @@ import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
 import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {
 
-    @Mock
-    private MemberRepository memberRepository;
+	@Mock
+	private MemberRepository memberRepository;
 
-    @Mock
-    private JwtUtil jwtUtil;
+	@Mock
+	private JwtUtil jwtUtil;
 
-    @Mock
-    private RedisService redisService;
+	@Mock
+	private AuthTokenRedisService authTokenRedisService;
 
-    @InjectMocks
-    private MemberService memberService;
+	@InjectMocks
+	private MemberService memberService;
 
-    @Test
-    void whenRegisterWithExistingEmail_thenThrowDuplicationEmailException() {
-        // Given
-        MemberRequest memberRequest = new MemberRequest("test1234@google.com", "test1234");
-        // 새 멤버 객체로 반환되어 메일이 존재함
-        when(memberRepository.findByEmail(memberRequest.getEmail())).thenReturn(new Member());
+	@Test
+	void whenRegisterWithExistingEmail_thenThrowDuplicationEmailException() {
+		// Given
+		MemberRequest memberRequest = new MemberRequest("test1234@google.com", "test1234");
+		// 새 멤버 객체로 반환되어 메일이 존재함
+		when(memberRepository.findByEmail(memberRequest.getEmail())).thenReturn(new Member());
 
-        assertThrows(DuplicateEmailException.class, () -> {
-            memberService.registerMember(memberRequest);
-        });
-    }
+		assertThrows(DuplicateEmailException.class, () -> {
+			memberService.registerMember(memberRequest);
+		});
+	}
 
-    @Test
-    void whenRegisterWithInvalidPassword_thenThrowInvalidPasswordException() {
-        // Given
-        MemberRequest memberRequest = new MemberRequest("test2@google.com","1234");
+	@Test
+	void whenRegisterWithInvalidPassword_thenThrowInvalidPasswordException() {
+		// Given
+		MemberRequest memberRequest = new MemberRequest("test2@google.com", "1234");
 
-        assertThrows(InvalidPasswordException.class, () -> {
-            memberService.registerMember(memberRequest);
-        });
-    }
+		assertThrows(InvalidPasswordException.class, () -> {
+			memberService.registerMember(memberRequest);
+		});
+	}
 
-    @Test
-    void whenRegisterWithValidEmailAndPassword_thenSucceed() {
-        // Given
-        MemberRequest memberDto = new MemberRequest("newuser@example.com", "Password1234");
-        Member expectedMember = new Member();
-        expectedMember.setEmail(memberDto.getEmail());
-        expectedMember.setPassword("encodedPassword");
+	@Test
+	void whenRegisterWithValidEmailAndPassword_thenSucceed() {
+		// Given
+		MemberRequest memberDto = new MemberRequest("newuser@example.com", "Password1234");
+		Member expectedMember = new Member();
+		expectedMember.setEmail(memberDto.getEmail());
+		expectedMember.setPassword("encodedPassword");
 
-        when(memberRepository.findByEmail(memberDto.getEmail())).thenReturn(null);
-        when(memberRepository.save(any(Member.class))).thenReturn(expectedMember);
+		when(memberRepository.findByEmail(memberDto.getEmail())).thenReturn(null);
+		when(memberRepository.save(any(Member.class))).thenReturn(expectedMember);
 
-        // When
-        Member registeredMember = memberService.registerMember(memberDto);
+		// When
+		Member registeredMember = memberService.registerMember(memberDto);
 
-        assertNotNull(registeredMember);
-        assertEquals(registeredMember.getEmail(), memberDto.getEmail());
-        assertEquals("encodedPassword", registeredMember.getPassword());
+		assertNotNull(registeredMember);
+		assertEquals(registeredMember.getEmail(), memberDto.getEmail());
+		assertEquals("encodedPassword", registeredMember.getPassword());
 
-    }
+	}
 
-    @Test
-    void login_Failure_MemberNotFound() {
-        MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
-        when(memberRepository.findByEmail(anyString())).thenReturn(null);
+	@Test
+	void login_Failure_MemberNotFound() {
+		MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+		when(memberRepository.findByEmail(anyString())).thenReturn(null);
 
-        assertThrows(MemberNotFoundException.class, () -> {
-            memberService.login(memberRequest);
-        });
-    }
+		assertThrows(MemberNotFoundException.class, () -> {
+			memberService.login(memberRequest);
+		});
+	}
 
-    @Test
-    void login_Failure_IncorrectPassword() {
-        MemberRequest memberRequest = new MemberRequest("user@google.com", "notmatchedPassword123");
-        Member member = new Member();
-        member.setEmail("user@google.com");
-        member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+	@Test
+	void login_Failure_IncorrectPassword() {
+		MemberRequest memberRequest = new MemberRequest("user@google.com", "notmatchedPassword123");
+		Member member = new Member();
+		member.setEmail("user@google.com");
+		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
 
-        when(memberRepository.findByEmail(anyString())).thenReturn(member);
+		when(memberRepository.findByEmail(anyString())).thenReturn(member);
 
-        assertThrows(LoginFailException.class, ()->{
-            memberService.login(memberRequest);
-        });
-    }
+		assertThrows(LoginFailException.class, () -> {
+			memberService.login(memberRequest);
+		});
+	}
 
-    @Test
-    void login_Successful() {
-        MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
-        Member member = new Member();
-        member.setEmail("user@google.com");
-        member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+	@Test
+	void login_Successful() {
+		MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+		Member member = new Member();
+		member.setEmail("user@google.com");
+		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
 
-        String expectedAccessToken = "access.token.string";
-        String expectedRefreshToken = "refresh.token.string";
+		String expectedAccessToken = "access.token.string";
+		String expectedRefreshToken = "refresh.token.string";
 
-        when(memberRepository.findByEmail(anyString())).thenReturn(member);
-        when(jwtUtil.generateAccessToken(anyString())).thenReturn(expectedAccessToken);
-        when(jwtUtil.generateRefreshToken(anyString())).thenReturn(expectedRefreshToken);
+		when(memberRepository.findByEmail(anyString())).thenReturn(member);
+		when(jwtUtil.generateAccessToken(anyString())).thenReturn(expectedAccessToken);
+		when(jwtUtil.generateRefreshToken(anyString())).thenReturn(expectedRefreshToken);
 
-        TokenResponse tokenResponse = memberService.login(memberRequest);
+		TokenResponse tokenResponse = memberService.login(memberRequest);
 
-        assertNotNull(tokenResponse);
-        assertEquals(expectedAccessToken, tokenResponse.getAccessToken());
-        assertEquals(expectedRefreshToken, tokenResponse.getRefreshToken());
-    }
+		assertNotNull(tokenResponse);
+		assertEquals(expectedAccessToken, tokenResponse.getAccessToken());
+		assertEquals(expectedRefreshToken, tokenResponse.getRefreshToken());
+	}
 
-    @Test
-    void logout_Successful() {
-        MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+	@Test
+	void logout_Successful() {
+		MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
 
-        memberService.logout(memberRequest);
+		memberService.logout(memberRequest);
 
-        then(redisService).should().deleteRefreshToken(memberRequest.getEmail());
-    }
+		then(authTokenRedisService).should().deleteRefreshToken(memberRequest.getEmail());
+	}
 
 }
