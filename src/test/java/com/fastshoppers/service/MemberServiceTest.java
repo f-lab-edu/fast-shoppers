@@ -20,6 +20,7 @@ import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
 import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
+import com.fastshoppers.util.SaltUtil;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {
@@ -32,6 +33,9 @@ public class MemberServiceTest {
 
 	@InjectMocks
 	private MemberService memberService;
+
+	@Mock
+	private RedisService redisService;
 
 	@Test
 	void whenRegisterWithExistingEmail_thenThrowDuplicationEmailException() {
@@ -88,9 +92,10 @@ public class MemberServiceTest {
 	@Test
 	void login_Failure_IncorrectPassword() {
 		MemberRequest memberRequest = new MemberRequest("user@google.com", "notmatchedPassword123");
+		String salt = SaltUtil.generateSalt();
 		Member member = new Member();
 		member.setEmail("user@google.com");
-		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234", salt));
 
 		when(memberRepository.findByEmail(anyString())).thenReturn(member);
 
@@ -102,9 +107,12 @@ public class MemberServiceTest {
 	@Test
 	void login_Successful() {
 		MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+		String salt = SaltUtil.generateSalt();
+
 		Member member = new Member();
 		member.setEmail("user@google.com");
-		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234", salt));
+		member.setSalt(salt);
 
 		String expectedAccessToken = "access.token.string";
 		String expectedRefreshToken = "refresh.token.string";
