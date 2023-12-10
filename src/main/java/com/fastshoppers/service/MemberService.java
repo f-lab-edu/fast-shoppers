@@ -18,6 +18,7 @@ import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
 import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
+import com.fastshoppers.util.SaltUtil;
 
 @Service
 public class MemberService {
@@ -52,7 +53,9 @@ public class MemberService {
 			throw new InvalidPasswordException();
 		}
 
-		Member member = convertToEntity(memberRequest);
+		String salt = SaltUtil.generateSalt();
+
+		Member member = convertToEntity(memberRequest, salt);
 		member.setDeleteYn("N");
 
 		return memberRepository.save(member);
@@ -65,7 +68,9 @@ public class MemberService {
 			throw new MemberNotFoundException();
 		}
 
-		String hashedPassword = PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword());
+		String salt = member.getSalt();
+
+		String hashedPassword = PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword(), salt);
 
 		if (!member.getPassword().equals(hashedPassword)) {
 			throw new LoginFailException();
@@ -90,11 +95,12 @@ public class MemberService {
 	 * @param memberRequest
 	 * @return Member
 	 */
-	private Member convertToEntity(MemberRequest memberRequest) {
-		Member member = new Member();
-		member.setEmail(memberRequest.getEmail());
-		member.setPassword(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword()));
-		return member;
+	private Member convertToEntity(MemberRequest memberRequest, String salt) {
+		return Member.builder()
+			.email(memberRequest.getEmail())
+			.salt(salt)
+			.password(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword(), salt))
+			.build();
 	}
 
 	/**
