@@ -18,6 +18,11 @@ public class SaltUtil {
 		return bytesToHex(salt);
 	}
 
+	/**
+	 * @description : byte배열을 16진수 형태의 문자열로 변환하는 메서드
+	 * @param bytes
+	 * @return
+	 */
 	private static String bytesToHex(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();
 		for (byte b : bytes) {
