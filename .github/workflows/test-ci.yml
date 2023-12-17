@@ -32,6 +32,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: 도커 이미지 캐시 제거
+        run: docker-compose -f docker-compose.yml build --no-cache
+
       - name: 도커 컴포즈 환경 정리
         run: docker-compose -f docker-compose.yml down
 
