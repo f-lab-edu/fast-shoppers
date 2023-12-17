@@ -11,6 +11,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: fast-shoppers
+          MYSQL_DATABASE: fast-shoppers-db
+        ports:
+          - 3307:3306
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -19,7 +32,10 @@ jobs:
           java-version: '17'
           distribution: 'coretto'
 
-      - name: gralde 명령 실행을 위해 권한 부여
+      - name: 도커 컴포즈 셋업
+        run: docker-compose -f docker-compose.yml up -d
+
+      - name: gradle 명령 실행을 위해 권한 부여
         run: chmod +x ./gradlew
 
       - name: 그래들 build
@@ -42,3 +58,6 @@ jobs:
           check_for_duplicate_msg: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 도커 컴포즈 셧다운
+        run: docker-compose -f docker-compose.yml down
