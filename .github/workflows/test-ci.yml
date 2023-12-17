@@ -79,6 +79,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 테스트 실행 및 커버리지 보고서 생성
+        run: ./gradlew test jacocoTestReport
+
       - name: 테스트 커버리지 리포트 생성 및 댓글 게시
         uses: madrapps/jacoco-report@v1.2
         with:
