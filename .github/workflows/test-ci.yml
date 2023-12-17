@@ -32,15 +32,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: MySQL 컨테이너 중지 및 제거
+      - name: 모든 컨테이너 중지 및 제거
         run: |
-          docker stop mysql
-          docker rm mysql
-
-      - name: Redis 컨테이너 중지 및 제거
-        run: |
-          docker stop redis
-          docker rm redis
+          docker stop $(docker ps -a -q)
+          docker rm $(docker ps -a -q)
 
       - name: 도커 이미지 캐시 제거
         run: docker-compose -f docker-compose.yml build --no-cache
