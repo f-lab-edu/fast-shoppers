@@ -40,13 +40,13 @@ jobs:
 
       - name: MySQL 컨테이너 중지 및 제거
         run: |
-          docker stop mysql-container
-          docker rm mysql-container
+          docker stop mysql
+          docker rm mysql
 
       - name: 레디스 컨테이너 중지 및 제거
         run: |
-          docker stop redis-container
-          docker rm redis-container
+          docker stop redis
+          docker rm redis
 
       - name: 도커 컴포즈 셋업
         run: docker-compose -f docker-compose.yml up -d
