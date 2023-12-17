@@ -38,15 +38,18 @@ jobs:
       - name: 도커 컴포즈 환경 정리
         run: docker-compose -f docker-compose.yml down
 
-      - name: MySQL 컨테이너 중지 및 제거
+      - name: 컨테이너 목록 확인
+        run: docker ps
+
+      - name: MySQL 컨테이너 중지
         run: |
-          docker stop mysql
-          docker rm mysql
+          docker stop mysql:latest
+          docker rm mysql:latest
 
       - name: 레디스 컨테이너 중지 및 제거
         run: |
-          docker stop redis
-          docker rm redis
+          docker stop redis:latest
+          docker rm redis:latest
 
       - name: 도커 컴포즈 셋업
         run: docker-compose -f docker-compose.yml up -d
