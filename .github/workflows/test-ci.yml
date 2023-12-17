@@ -82,9 +82,9 @@ jobs:
       - name: 테스트 커버리지 리포트 생성 및 댓글 게시
         uses: madrapps/jacoco-report@v1.2
         with:
-          title: "테스트 커버리지 리포트"
-          paths: "${{ github.workspace }}/build/jacoco/index.xml"
-          token: "${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}"
+          title: '테스트 커버리지 리포트'
+          paths: ${{ github.workspace }}/build/jacoco/index.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-changed-files: 50
 
       - name: 도커 컴포즈 셧다운
