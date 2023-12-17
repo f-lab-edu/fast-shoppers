@@ -14,7 +14,6 @@ jobs:
     services:
       mysql:
         image: mysql:latest
-        container-name: mysql-container
         env:
           MYSQL_ROOT_PASSWORD: fast-shoppers
           MYSQL_DATABASE: fast-shoppers-db
@@ -22,7 +21,6 @@ jobs:
           - 3307:3306
       redis:
         image: redis:latest
-        container-name: redis-container
         ports:
           - 6379:6379
 
@@ -34,21 +32,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: MySQL 컨테이너 중지 및 제거
+        run: |
+          docker stop mysql
+          docker rm mysql
+
+      - name: Redis 컨테이너 중지 및 제거
+        run: |
+          docker stop redis
+          docker rm redis
+
       - name: 도커 이미지 캐시 제거
         run: docker-compose -f docker-compose.yml build --no-cache
 
       - name: 도커 컴포즈 환경 정리
         run: docker-compose -f docker-compose.yml down
-
-      - name: MySQL 컨테이너 중지
-        run: |
-          docker stop mysql-container
-          docker rm mysql-container
-
-      - name: 레디스 컨테이너 중지 및 제거
-        run: |
-          docker stop redis-container
-          docker rm redis-container
 
       - name: 도커 컴포즈 셋업
         run: docker-compose -f docker-compose.yml up -d
@@ -70,7 +68,7 @@ jobs:
 
       - name: 코멘트 추가
         uses: unsplash/comment-on-pr@v1.3.0
-        if: success() || failure()
+        if: failure()
         with:
           msg: '테스트 실패: 원인을 확인하세요.'
           check_for_duplicate_msg: false
