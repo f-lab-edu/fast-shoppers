@@ -14,7 +14,7 @@ jobs:
     services:
       mysql:
         image: mysql:latest
-        container_name: mysql-container
+        container-name: mysql-container
         env:
           MYSQL_ROOT_PASSWORD: fast-shoppers
           MYSQL_DATABASE: fast-shoppers-db
@@ -22,7 +22,7 @@ jobs:
           - 3307:3306
       redis:
         image: redis:latest
-        container_name: redis-container
+        container-name: redis-container
         ports:
           - 6379:6379
 
