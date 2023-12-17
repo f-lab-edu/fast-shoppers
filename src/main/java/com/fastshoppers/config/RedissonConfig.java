@@ -6,6 +6,8 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
 public class RedissonConfig {
@@ -22,5 +24,12 @@ public class RedissonConfig {
 		config.useSingleServer()
 			.setAddress("redis://" + redisHost + ":" + redisPort);
 		return Redisson.create(config); // RedissonClient 반환
+	}
+
+	@Bean
+	public RedisTemplate<Integer, Integer> redisTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<Integer, Integer> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(connectionFactory);
+		return redisTemplate;
 	}
 }
