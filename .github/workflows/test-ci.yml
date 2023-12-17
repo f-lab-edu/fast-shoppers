@@ -32,6 +32,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: 도커 컴포즈 환경 정리
+        run: docker-compose -f docker-compose.yml down
+
       - name: 도커 컴포즈 셋업
         run: docker-compose -f docker-compose.yml up -d
 
