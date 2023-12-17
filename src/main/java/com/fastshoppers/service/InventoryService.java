@@ -5,6 +5,13 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fastshoppers.entity.Product;
+import com.fastshoppers.exception.EntityNotFoundException;
+import com.fastshoppers.exception.InventoryShortageException;
+import com.fastshoppers.repository.ProductRepository;
+
+import jakarta.transaction.Transactional;
+
 @Service
 public class InventoryService {
 
@@ -12,10 +19,14 @@ public class InventoryService {
 
 	private final InventoryRedisService inventoryRedisService;
 
+	private final ProductRepository productRepository;
+
 	@Autowired
-	public InventoryService(RedissonClient redissonClient, InventoryRedisService inventoryRedisService) {
+	public InventoryService(RedissonClient redissonClient, InventoryRedisService inventoryRedisService,
+		ProductRepository productRepository) {
 		this.redissonClient = redissonClient;
 		this.inventoryRedisService = inventoryRedisService;
+		this.productRepository = productRepository;
 	}
 
 	/**
@@ -31,17 +42,63 @@ public class InventoryService {
 			lock.lock();
 
 			// productUuid가 아닌 내부키 productId조회
-			Integer productId = 0; // 이 부분 추후 수정
+			int productId = getProductIdFromUuid(productUuid);
 
 			// 재고 조회 로직 실행
-			int inventory = inventoryRedisService.getInventory(productId);
+			return inventoryRedisService.getInventory(productId);
 
-			return inventory;
 		} finally {
 			// 락 해제
 			lock.unlock();
 		}
 	}
 
-	// 두 번째로 재고 감소시키는 서비스도 만들기
+	/**
+	 * @description : 재고 업데이트 로직
+	 * @param productUuid
+	 * @param quantity
+	 * @return
+	 */
+	@Transactional
+	public void updateInventory(String productUuid, int quantity) {
+		RLock lock = redissonClient.getLock("inventoryLock:" + productUuid);
+
+		try {
+			lock.lock();
+
+			// productUuid가 아닌 내부키 productId조회
+			int productId = getProductIdFromUuid(productUuid);
+
+			// mysql 원 디비에서 product 조회
+			Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID" + productUuid));
+
+			// newStock = 남은재고 + 추가 / 감소할 재고
+			int newStock = product.getRemainQuantity() + quantity;
+
+			if (newStock < 0) {
+				throw new InventoryShortageException();
+			}
+
+			product.setRemainQuantity(newStock);
+			// mysql디비에 저장
+			productRepository.save(product);
+
+			// redis sync 맞추어 저장
+			inventoryRedisService.updateInventory(productId, newStock);
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
+	 * @description : 외부키인 uuid를 받아서, 상품의 내부키 productId를 조회하는 메서드
+	 * @param productUuid
+	 * @return
+	 */
+	public Integer getProductIdFromUuid(String productUuid) {
+		return productRepository.findByProductUuid(productUuid)
+			.map(Product::getId)
+			.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID" + productUuid));
+	}
 }
