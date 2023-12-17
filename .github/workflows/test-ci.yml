@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'coretto'
+          distribution: 'temurin'
 
       - name: 도커 컴포즈 셋업
         run: docker-compose -f docker-compose.yml up -d
