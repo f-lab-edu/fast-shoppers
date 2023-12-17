@@ -73,7 +73,7 @@ jobs:
 
       - name: 코멘트 추가
         uses: unsplash/comment-on-pr@v1.3.0
-        if: failure()
+        if: success() || failure()
         with:
           msg: '테스트 실패: 원인을 확인하세요.'
           check_for_duplicate_msg: false
