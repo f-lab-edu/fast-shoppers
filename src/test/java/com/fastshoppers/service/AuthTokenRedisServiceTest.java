@@ -12,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-public class RedisServiceTest {
+public class AuthTokenRedisServiceTest {
 
 	@Mock
 	private StringRedisTemplate stringRedisTemplate;
@@ -21,7 +21,7 @@ public class RedisServiceTest {
 	private ValueOperations<String, String> valueOperations;
 
 	@InjectMocks
-	private RedisService redisService;
+	private AuthTokenRedisService authTokenRedisService;
 
 	@BeforeEach
 	public void setUp() {
@@ -35,8 +35,8 @@ public class RedisServiceTest {
 		String token = "token";
 		long expirationTime = 60L;
 
-		redisService.saveRefreshToken(email, token, expirationTime);
+		authTokenRedisService.saveRefreshToken(email, token, expirationTime);
 
-		verify(valueOperations).set(email, token, expirationTime, TimeUnit.MILLISECONDS);
+		verify(valueOperations).set(email, token, expirationTime, TimeUnit.SECONDS);
 	}
 }

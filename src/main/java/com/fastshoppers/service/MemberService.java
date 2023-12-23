@@ -27,16 +27,17 @@ public class MemberService {
 
 	private final JwtUtil jwtUtil;
 
-	private final RedisService redisService;
+	private final AuthTokenRedisService authTokenRedisService;
 
 	@Value("${token.refresh.expiry.milliseconds}")
 	private int refreshTokenExpiryMilliSeconds;
 
 	@Autowired
-	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil, RedisService redisService) {
+	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil,
+		AuthTokenRedisService authTokenRedisService) {
 		this.memberRepository = memberRepository;
 		this.jwtUtil = jwtUtil;
-		this.redisService = redisService;
+		this.authTokenRedisService = authTokenRedisService;
 	}
 
 	/**
@@ -82,7 +83,7 @@ public class MemberService {
 		String accessToken = jwtUtil.generateAccessToken(claims);
 		String refreshToken = jwtUtil.generateRefreshToken(claims);
 
-		redisService.saveRefreshToken(member.getEmail(), refreshToken, refreshTokenExpiryMilliSeconds);
+		authTokenRedisService.saveRefreshToken(member.getEmail(), refreshToken, refreshTokenExpiryMilliSeconds);
 
 		return TokenResponse.builder()
 			.accessToken(accessToken)
@@ -113,4 +114,11 @@ public class MemberService {
 		return Pattern.matches(passwordPattern, password);
 	}
 
+	/**
+	 * @description : 로그아웃 메서드. redis에서 refreshToken을 삭제한다.
+	 * @param memberRequest
+	 */
+	public void logout(MemberRequest memberRequest) {
+		authTokenRedisService.deleteRefreshToken(memberRequest.getEmail());
+	}
 }

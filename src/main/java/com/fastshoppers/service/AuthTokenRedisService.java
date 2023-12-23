@@ -8,18 +8,18 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RedisService {
+public class AuthTokenRedisService {
 
 	private final StringRedisTemplate stringRedisTemplate;
 
 	@Autowired
-	public RedisService(StringRedisTemplate stringRedisTemplate) {
+	public AuthTokenRedisService(StringRedisTemplate stringRedisTemplate) {
 		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
 	public void saveRefreshToken(String email, String refreshToken, long expirationTime) {
 		ValueOperations<String, String> values = stringRedisTemplate.opsForValue();
-		values.set(email, refreshToken, expirationTime, TimeUnit.MILLISECONDS);
+		values.set(email, refreshToken, expirationTime, TimeUnit.SECONDS);
 	}
 
 	public String getRefreshToken(String email) {

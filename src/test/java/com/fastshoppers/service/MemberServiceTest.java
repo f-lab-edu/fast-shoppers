@@ -2,6 +2,7 @@ package com.fastshoppers.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,11 @@ public class MemberServiceTest {
 	@Mock
 	private JwtUtil jwtUtil;
 
+	@Mock
+	private AuthTokenRedisService authTokenRedisService;
+
 	@InjectMocks
 	private MemberService memberService;
-
-	@Mock
-	private RedisService redisService;
 
 	@Test
 	void whenRegisterWithExistingEmail_thenThrowDuplicationEmailException() {
@@ -127,6 +128,15 @@ public class MemberServiceTest {
 		assertNotNull(tokenResponse);
 		assertEquals(expectedAccessToken, tokenResponse.getAccessToken());
 		assertEquals(expectedRefreshToken, tokenResponse.getRefreshToken());
+	}
+
+	@Test
+	void logout_Successful() {
+		MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+
+		memberService.logout(memberRequest);
+
+		then(authTokenRedisService).should().deleteRefreshToken(memberRequest.getEmail());
 	}
 
 }
