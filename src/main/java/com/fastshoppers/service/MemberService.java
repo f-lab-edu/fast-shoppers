@@ -1,8 +1,11 @@
 package com.fastshoppers.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.entity.Member;
@@ -15,6 +18,7 @@ import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
 import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
+import com.fastshoppers.util.SaltUtil;
 
 @Service
 public class MemberService {
@@ -23,11 +27,13 @@ public class MemberService {
 
 	private final JwtUtil jwtUtil;
 
-	private final AuthTokenRedisService authTokenRedisService;
+	rivate final AuthTokenRedisService authTokenRedisService;
+
+	@Value("${token.refresh.expiry.milliseconds}")
+	private int refreshTokenExpiryMilliSeconds;
 
 	@Autowired
-	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil,
-		AuthTokenRedisService authTokenRedisService) {
+	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil, AuthTokenRedisService authTokenRedisService) {
 		this.memberRepository = memberRepository;
 		this.jwtUtil = jwtUtil;
 		this.authTokenRedisService = authTokenRedisService;
@@ -47,8 +53,10 @@ public class MemberService {
 			throw new InvalidPasswordException();
 		}
 
-		Member member = convertToEntity(memberRequest);
-		member.setDeleteYn("N");
+		String salt = SaltUtil.generateSalt();
+
+		Member member = convertToEntity(memberRequest, salt);
+		member.setDeleteYn(false);
 
 		return memberRepository.save(member);
 	}
@@ -60,16 +68,21 @@ public class MemberService {
 			throw new MemberNotFoundException();
 		}
 
-		String hashedPassword = PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword());
+		String salt = member.getSalt();
+
+		String hashedPassword = PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword(), salt);
 
 		if (!member.getPassword().equals(hashedPassword)) {
 			throw new LoginFailException();
 		}
 
-		String accessToken = jwtUtil.generateAccessToken(member.getEmail());
-		String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("email", member.getEmail());
 
-		authTokenRedisService.saveRefreshToken(member.getEmail(), refreshToken, 7 * 24 * 60 * 60);
+		String accessToken = jwtUtil.generateAccessToken(claims);
+		String refreshToken = jwtUtil.generateRefreshToken(claims);
+
+		authTokenRedisService.saveRefreshToken(member.getEmail(), refreshToken, refreshTokenExpiryMilliSeconds);
 
 		return TokenResponse.builder()
 			.accessToken(accessToken)
@@ -82,11 +95,12 @@ public class MemberService {
 	 * @param memberRequest
 	 * @return Member
 	 */
-	private Member convertToEntity(MemberRequest memberRequest) {
-		Member member = new Member();
-		member.setEmail(memberRequest.getEmail());
-		member.setPassword(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword()));
-		return member;
+	private Member convertToEntity(MemberRequest memberRequest, String salt) {
+		return Member.builder()
+			.email(memberRequest.getEmail())
+			.salt(salt)
+			.password(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword(), salt))
+			.build();
 	}
 
 	/**

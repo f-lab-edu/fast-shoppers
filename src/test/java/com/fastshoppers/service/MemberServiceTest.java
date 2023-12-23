@@ -21,6 +21,7 @@ import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
 import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
+import com.fastshoppers.util.SaltUtil;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {
@@ -92,9 +93,10 @@ public class MemberServiceTest {
 	@Test
 	void login_Failure_IncorrectPassword() {
 		MemberRequest memberRequest = new MemberRequest("user@google.com", "notmatchedPassword123");
+		String salt = SaltUtil.generateSalt();
 		Member member = new Member();
 		member.setEmail("user@google.com");
-		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234", salt));
 
 		when(memberRepository.findByEmail(anyString())).thenReturn(member);
 
@@ -106,16 +108,20 @@ public class MemberServiceTest {
 	@Test
 	void login_Successful() {
 		MemberRequest memberRequest = new MemberRequest("user@google.com", "Password1234");
+		String salt = SaltUtil.generateSalt();
+
 		Member member = new Member();
 		member.setEmail("user@google.com");
-		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234"));
+		member.setPassword(PasswordEncryptionUtil.encryptPassword("Password1234", salt));
+		member.setSalt(salt);
 
 		String expectedAccessToken = "access.token.string";
 		String expectedRefreshToken = "refresh.token.string";
 
 		when(memberRepository.findByEmail(anyString())).thenReturn(member);
-		when(jwtUtil.generateAccessToken(anyString())).thenReturn(expectedAccessToken);
-		when(jwtUtil.generateRefreshToken(anyString())).thenReturn(expectedRefreshToken);
+
+		when(jwtUtil.generateAccessToken(anyMap())).thenReturn(expectedAccessToken);
+		when(jwtUtil.generateRefreshToken(anyMap())).thenReturn(expectedRefreshToken);
 
 		TokenResponse tokenResponse = memberService.login(memberRequest);
 
