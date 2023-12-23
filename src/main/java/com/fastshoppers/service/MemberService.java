@@ -27,13 +27,14 @@ public class MemberService {
 
 	private final JwtUtil jwtUtil;
 
-	rivate final AuthTokenRedisService authTokenRedisService;
+	private final AuthTokenRedisService authTokenRedisService;
 
 	@Value("${token.refresh.expiry.milliseconds}")
 	private int refreshTokenExpiryMilliSeconds;
 
 	@Autowired
-	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil, AuthTokenRedisService authTokenRedisService) {
+	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil,
+		AuthTokenRedisService authTokenRedisService) {
 		this.memberRepository = memberRepository;
 		this.jwtUtil = jwtUtil;
 		this.authTokenRedisService = authTokenRedisService;
