@@ -18,4 +18,12 @@ public class ResponseMessage {
                 .statusCode(StatusCode.OK.getCode())
                 .build();
     }
+
+    public static ResponseMessage ok(Object data) {
+        return ResponseMessage.builder()
+                .status(HttpStatus.OK.value())
+                .statusCode(StatusCode.OK.getCode())
+                .data(data)
+                .build();
+    }
 }

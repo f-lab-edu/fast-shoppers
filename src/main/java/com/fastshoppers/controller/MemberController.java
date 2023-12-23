@@ -2,6 +2,7 @@ package com.fastshoppers.controller;
 
 import com.fastshoppers.common.ResponseMessage;
 import com.fastshoppers.model.MemberRequest;
+import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,5 +24,14 @@ public class MemberController {
 
         return ResponseMessage.ok();
     }
+
+
+    @PostMapping("/login")
+    public ResponseMessage login(@RequestBody MemberRequest memberRequest) {
+        TokenResponse tokenResponse = memberService.login(memberRequest);
+
+        return ResponseMessage.ok(tokenResponse);
+    }
+
 
 }
