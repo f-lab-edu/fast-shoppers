@@ -21,7 +21,7 @@ public class MemberRepositoryTest {
 		member.setEmail("test1234@google.com");
 		member.setPassword("test123456");
 		member.setSalt("someRandomlyGeneratedSalt");
-		member.setDeleteYn("N");
+		member.setDeleteYn(false);
 		// When
 		Member savedMember = memberRepository.save(member);
 

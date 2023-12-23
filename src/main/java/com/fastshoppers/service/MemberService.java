@@ -56,7 +56,7 @@ public class MemberService {
 		String salt = SaltUtil.generateSalt();
 
 		Member member = convertToEntity(memberRequest, salt);
-		member.setDeleteYn("N");
+		member.setDeleteYn(false);
 
 		return memberRepository.save(member);
 	}

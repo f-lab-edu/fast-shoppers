@@ -1,5 +1,8 @@
 package com.fastshoppers.entity;
 
+import com.fastshoppers.util.BooleanToCharConverter;
+import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -47,8 +50,9 @@ public class Member {
 	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
 
-	@Column(name = "delete_yn", nullable = false, length = 1, columnDefinition = "char(1)")
-	private String deleteYn;
+    @Column(name = "delete_yn", nullable = false, length = 1, columnDefinition = "char(1)")
+    @Convert(converter = BooleanToCharConverter.class)
+    private boolean deleteYn;
 
 	@Column(nullable = false, length = 255)
 	private String salt;
