@@ -2,7 +2,6 @@ package com.fastshoppers.service;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.entity.Product;
@@ -11,8 +10,10 @@ import com.fastshoppers.exception.InventoryShortageException;
 import com.fastshoppers.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class InventoryService {
 
 	private final RedissonClient redissonClient;
@@ -20,14 +21,6 @@ public class InventoryService {
 	private final InventoryRedisService inventoryRedisService;
 
 	private final ProductRepository productRepository;
-
-	@Autowired
-	public InventoryService(RedissonClient redissonClient, InventoryRedisService inventoryRedisService,
-		ProductRepository productRepository) {
-		this.redissonClient = redissonClient;
-		this.inventoryRedisService = inventoryRedisService;
-		this.productRepository = productRepository;
-	}
 
 	/**
 	 * @description : 락을 획득해서, 재고 조회 로직을 실행한다.
