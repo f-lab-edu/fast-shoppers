@@ -5,8 +5,8 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.entity.Product;
-import com.fastshoppers.exception.EntityNotFoundException;
 import com.fastshoppers.exception.InventoryShortageException;
+import com.fastshoppers.exception.ProductEntityNotFoundException;
 import com.fastshoppers.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;
@@ -64,7 +64,7 @@ public class InventoryService {
 
 			// mysql 원 디비에서 product 조회
 			Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID" + productUuid));
+				.orElseThrow(() -> new ProductEntityNotFoundException(productUuid));
 
 			// newStock = 남은재고 + 추가 / 감소할 재고
 			int newStock = product.getRemainQuantity() + quantity;
@@ -92,6 +92,6 @@ public class InventoryService {
 	public Integer getProductIdFromUuid(String productUuid) {
 		return productRepository.findByProductUuid(productUuid)
 			.map(Product::getId)
-			.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID" + productUuid));
+			.orElseThrow(() -> new ProductEntityNotFoundException(productUuid));
 	}
 }
