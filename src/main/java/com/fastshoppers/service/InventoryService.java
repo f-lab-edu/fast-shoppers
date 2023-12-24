@@ -4,22 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.entity.Product;
-import com.fastshoppers.exception.EntityNotFoundException;
 import com.fastshoppers.exception.InventoryShortageException;
+import com.fastshoppers.exception.ProductEntityNotFoundException;
 import com.fastshoppers.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class InventoryService {
 
 	private final ProductRepository productRepository;
-
-	@Autowired
-	public InventoryService(ProductRepository productRepository) {
-		this.productRepository = productRepository;
-	}
-
+  
 	/**
 	 * @description : 락을 획득해서, 재고 조회 로직을 실행한다.
 	 * @param productUuid
@@ -69,6 +66,6 @@ public class InventoryService {
 	public Integer getProductIdFromUuid(String productUuid) {
 		return productRepository.findByProductUuid(productUuid)
 			.map(Product::getId)
-			.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID" + productUuid));
+			.orElseThrow(() -> new ProductEntityNotFoundException(productUuid));
 	}
 }

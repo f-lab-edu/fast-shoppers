@@ -5,6 +5,7 @@ import com.fastshoppers.common.StatusCode;
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.logger.ExceptionLogger;
 import com.fastshoppers.model.MemberRequest;
+import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,10 +23,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import org.springframework.context.annotation.Import;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @ExtendWith(SpringExtension.class)
@@ -67,6 +70,40 @@ public class MemberControllerTest {
 
         then(memberService).should().registerMember(any(MemberRequest.class));
     }
+
+    @Test
+    @WithMockUser
+    void login_Successful() throws Exception {
+
+        TokenResponse expectedResponse = new TokenResponse("access-token", "refresh-token");
+        given(memberService.login(any(MemberRequest.class))).willReturn(expectedResponse);
+
+        mockMvc.perform(post("/api/v1/members/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(memberRequest))
+                    .with(csrf()))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
+                .andExpect(jsonPath("$.statusCode").value(StatusCode.OK.getCode()))
+                .andExpect(jsonPath("$.data.accessToken").value(expectedResponse.getAccessToken()))
+                .andExpect(jsonPath("$.data.refreshToken").value(expectedResponse.getRefreshToken()));
+
+        then(memberService).should().login(any(MemberRequest.class));
+
+    }
+
+    @Test
+    @WithMockUser
+    public void logoutTest() throws Exception {
+        mockMvc.perform(post("/api/v1/members/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(memberRequest))
+                        .with(csrf()))
+                .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
+                .andExpect(jsonPath("$.statusCode").value(StatusCode.OK.getCode()));
+
+        then(memberService).should().logout(any(MemberRequest.class));
+    }
+
 }
 
 

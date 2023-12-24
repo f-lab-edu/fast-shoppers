@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
 import com.fastshoppers.entity.Product;
-
 import jakarta.persistence.LockModeType;
 
 @Repository

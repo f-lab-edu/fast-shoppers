@@ -1,20 +1,17 @@
 package com.fastshoppers.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * @description : 재고 조회 RedisService
  */
 @Service
+@RequiredArgsConstructor
 public class InventoryRedisService {
 	private final RedisTemplate<Integer, Integer> redisTemplate;
-
-	@Autowired
-	public InventoryRedisService(RedisTemplate<Integer, Integer> redisTemplate) {
-		this.redisTemplate = redisTemplate;
-	}
 
 	/**
 	 * @description : 재고 조회 로직

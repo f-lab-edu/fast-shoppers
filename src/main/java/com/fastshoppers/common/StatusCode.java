@@ -1,5 +1,10 @@
 package com.fastshoppers.common;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum StatusCode {
 
 	OK("OK"),
@@ -12,12 +17,4 @@ public enum StatusCode {
 	ENTITY_NOT_FOUND("ENTITY_NOT_FOUND");
 
 	private final String code;
-
-	StatusCode(String code) {
-		this.code = code;
-	}
-
-	public String getCode() {
-		return code;
-	}
 }

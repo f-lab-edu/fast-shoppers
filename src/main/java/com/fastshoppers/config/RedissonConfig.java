@@ -18,14 +18,27 @@ public class RedissonConfig {
 	@Value("${spring.data.redis.port}")
 	private int redisPort;
 
+	/**
+	 * description : Redis 관련 설정
+	 * @return redissonClient
+	 */
 	@Bean
 	public RedissonClient redissonClient() {
 		Config config = new Config();
-		config.useSingleServer()
-			.setAddress("redis://" + redisHost + ":" + redisPort);
-		return Redisson.create(config); // RedissonClient 반환
+
+		final String REDIS_ADDRRES_FORMAT = "redis://%s:%d";
+
+		String redisAddress = String.format(REDIS_ADDRRES_FORMAT, redisHost, redisPort);
+
+		config.useSingleServer().setAddress(redisAddress);
+		return Redisson.create(config);
 	}
 
+	/**
+	 * @description : ConnectionFactory를 연결하고, redisTemplate을 사용자 설정하여 리턴하는 메서드
+	 * @param connectionFactory
+	 * @return redisTemplate
+	 */
 	@Bean
 	public RedisTemplate<Integer, Integer> redisTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<Integer, Integer> redisTemplate = new RedisTemplate<>();
