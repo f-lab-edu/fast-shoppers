@@ -1,7 +1,5 @@
 package com.fastshoppers.service;
 
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +13,10 @@ import jakarta.transaction.Transactional;
 @Service
 public class InventoryService {
 
-	private final RedissonClient redissonClient;
-
-	private final InventoryRedisService inventoryRedisService;
-
 	private final ProductRepository productRepository;
 
 	@Autowired
-	public InventoryService(RedissonClient redissonClient, InventoryRedisService inventoryRedisService,
-		ProductRepository productRepository) {
-		this.redissonClient = redissonClient;
-		this.inventoryRedisService = inventoryRedisService;
+	public InventoryService(ProductRepository productRepository) {
 		this.productRepository = productRepository;
 	}
 
@@ -35,22 +26,12 @@ public class InventoryService {
 	 * @return
 	 */
 	public int getInventory(String productUuid) {
-		// Lock 생성
-		RLock lock = redissonClient.getLock("inventoryLock:" + productUuid);
-		try {
-			// 락 획득
-			lock.lock();
+		int productId = getProductIdFromUuid(productUuid);
 
-			// productUuid가 아닌 내부키 productId조회
-			int productId = getProductIdFromUuid(productUuid);
+		Product product = productRepository.findById(productId)
+			.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID: " + productUuid));
 
-			// 재고 조회 로직 실행
-			return inventoryRedisService.getInventory(productId);
-
-		} finally {
-			// 락 해제
-			lock.unlock();
-		}
+		return product.getRemainQuantity();
 	}
 
 	/**
@@ -61,34 +42,23 @@ public class InventoryService {
 	 */
 	@Transactional
 	public void updateInventory(String productUuid, int quantity) {
-		RLock lock = redissonClient.getLock("inventoryLock:" + productUuid);
 
-		try {
-			lock.lock();
+		// productUuid가 아닌 내부키 productId조회
+		int productId = getProductIdFromUuid(productUuid);
 
-			// productUuid가 아닌 내부키 productId조회
-			int productId = getProductIdFromUuid(productUuid);
+		// mysql 원 디비에서 product 조회 - PESSIMISTIC_LOCK을 사용하여, 데이터를 읽거나 수정할 때 다른 트랜잭션이 해당 데이터를 동시에 수정하지 못하도록 함
+		Product product = productRepository.findById(productId)
+			.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID:" + productUuid));
 
-			// mysql 원 디비에서 product 조회
-			Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new EntityNotFoundException("Product not found with UUID" + productUuid));
+		// newStock = 남은재고 + 추가 / 감소할 재고
+		int newStock = product.getRemainQuantity() + quantity;
 
-			// newStock = 남은재고 + 추가 / 감소할 재고
-			int newStock = product.getRemainQuantity() + quantity;
-
-			if (newStock < 0) {
-				throw new InventoryShortageException();
-			}
-
-			product.setRemainQuantity(newStock);
-			// mysql디비에 저장
-			productRepository.save(product);
-
-			// redis sync 맞추어 저장
-			inventoryRedisService.updateInventory(productId, newStock);
-		} finally {
-			lock.unlock();
+		if (newStock < 0) {
+			throw new InventoryShortageException();
 		}
+
+		product.setRemainQuantity(newStock);
+
 	}
 
 	/**
