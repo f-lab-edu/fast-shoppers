@@ -1,23 +1,38 @@
 package com.fastshoppers.service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.entity.Member;
 import com.fastshoppers.exception.DuplicateEmailException;
 import com.fastshoppers.exception.InvalidPasswordException;
+import com.fastshoppers.exception.LoginFailException;
+import com.fastshoppers.exception.MemberNotFoundException;
 import com.fastshoppers.model.MemberRequest;
+import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
+import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
-
 import lombok.RequiredArgsConstructor;
+import com.fastshoppers.util.SaltUtil;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+
+	private final JwtUtil jwtUtil;
+
+	private final AuthTokenRedisService authTokenRedisService;
+
+	@Value("${token.refresh.expiry.milliseconds}")
+	private int refreshTokenExpiryMilliSeconds;
 
 	/**
 	 * @description: 회원가입 비즈니스 로직. 이메일 중복 확인, password 유효성 검사 후 멤버 디비 저장
@@ -33,10 +48,41 @@ public class MemberService {
 			throw new InvalidPasswordException();
 		}
 
-		Member member = convertToEntity(memberRequest);
+		String salt = SaltUtil.generateSalt();
+
+		Member member = convertToEntity(memberRequest, salt);
 		member.setDeleteYn(false);
 
 		return memberRepository.save(member);
+	}
+
+	public TokenResponse login(MemberRequest memberRequest) {
+		Member member = memberRepository.findByEmail(memberRequest.getEmail());
+
+		if (member == null) {
+			throw new MemberNotFoundException();
+		}
+
+		String salt = member.getSalt();
+
+		String hashedPassword = PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword(), salt);
+
+		if (!member.getPassword().equals(hashedPassword)) {
+			throw new LoginFailException();
+		}
+
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("email", member.getEmail());
+
+		String accessToken = jwtUtil.generateAccessToken(claims);
+		String refreshToken = jwtUtil.generateRefreshToken(claims);
+
+		authTokenRedisService.saveRefreshToken(member.getEmail(), refreshToken, refreshTokenExpiryMilliSeconds);
+
+		return TokenResponse.builder()
+			.accessToken(accessToken)
+			.refreshToken(refreshToken)
+			.build();
 	}
 
 	/**
@@ -44,11 +90,12 @@ public class MemberService {
 	 * @param memberRequest
 	 * @return Member
 	 */
-	private Member convertToEntity(MemberRequest memberRequest) {
-		Member member = new Member();
-		member.setEmail(memberRequest.getEmail());
-		member.setPassword(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword()));
-		return member;
+	private Member convertToEntity(MemberRequest memberRequest, String salt) {
+		return Member.builder()
+			.email(memberRequest.getEmail())
+			.salt(salt)
+			.password(PasswordEncryptionUtil.encryptPassword(memberRequest.getPassword(), salt))
+			.build();
 	}
 
 	/**
@@ -61,4 +108,11 @@ public class MemberService {
 		return Pattern.matches(passwordPattern, password);
 	}
 
+	/**
+	 * @description : 로그아웃 메서드. redis에서 refreshToken을 삭제한다.
+	 * @param memberRequest
+	 */
+	public void logout(MemberRequest memberRequest) {
+		authTokenRedisService.deleteRefreshToken(memberRequest.getEmail());
+	}
 }
