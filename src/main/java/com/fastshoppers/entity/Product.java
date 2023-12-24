@@ -1,22 +1,14 @@
 package com.fastshoppers.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.fastshoppers.util.BooleanToCharConverter;
-
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -27,18 +19,15 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
+@AttributeOverride(name = "id", column = @Column(name = "product_id", nullable = false))
+@Table(name = "product")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 @ToString
-@Table(name = "Product")
-public class Product {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "product_id", nullable = false)
-	private int id;
+public class Product extends BaseEntity {
 
 	@Column(name = "product_uuid", nullable = false, unique = true)
 	private String productUuid;
@@ -70,16 +59,4 @@ public class Product {
 
 	@Column(name = "remain_quantity", nullable = false)
 	private Integer remainQuantity;
-
-	@CreatedDate
-	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createdAt;
-
-	@LastModifiedDate
-	@Column(name = "updated_at", nullable = false)
-	private LocalDateTime updatedAt;
-
-	@Column(name = "delete_yn", nullable = false, length = 1, columnDefinition = "char(1)")
-	@Convert(converter = BooleanToCharConverter.class)
-	private boolean deleteYn;
 }
