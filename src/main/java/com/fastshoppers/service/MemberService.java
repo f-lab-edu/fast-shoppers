@@ -18,9 +18,11 @@ import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
 import com.fastshoppers.util.JwtUtil;
 import com.fastshoppers.util.PasswordEncryptionUtil;
+import lombok.RequiredArgsConstructor;
 import com.fastshoppers.util.SaltUtil;
 
 @Service
+@RequiredArgsConstructor
 public class MemberService {
 
 	private final MemberRepository memberRepository;
@@ -31,14 +33,6 @@ public class MemberService {
 
 	@Value("${token.refresh.expiry.milliseconds}")
 	private int refreshTokenExpiryMilliSeconds;
-
-	@Autowired
-	public MemberService(MemberRepository memberRepository, JwtUtil jwtUtil,
-		AuthTokenRedisService authTokenRedisService) {
-		this.memberRepository = memberRepository;
-		this.jwtUtil = jwtUtil;
-		this.authTokenRedisService = authTokenRedisService;
-	}
 
 	/**
 	 * @description: 회원가입 비즈니스 로직. 이메일 중복 확인, password 유효성 검사 후 멤버 디비 저장
