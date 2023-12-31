@@ -1,6 +1,7 @@
 package com.fastshoppers.entity;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,4 +34,5 @@ public class Member extends BaseEntity {
 
 	@Column(nullable = false, length = 255)
 	private String salt;
+
 }
