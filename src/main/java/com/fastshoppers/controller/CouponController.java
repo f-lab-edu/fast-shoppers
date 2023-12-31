@@ -24,12 +24,23 @@ public class CouponController {
 
 	private final JwtUtil jwtUtil;
 
+	/**
+	 * @description : 쿠폰 재고를 조회한다.
+	 * @param couponId
+	 * @return
+	 */
 	@GetMapping("/{couponId}")
 	public ResponseMessage getCouponStock(@PathVariable int couponId) {
 		long stock = couponService.getCouponStock(couponId);
 		return ResponseMessage.ok(stock);
 	}
 
+	/**
+	 * @description : 쿠폰 유효성을 체크하고, 멤버에게 발급한다.
+	 * @param accessToken
+	 * @param couponId
+	 * @return
+	 */
 	@PostMapping("/{couponId}")
 	public ResponseMessage issueCouponToMember(@RequestHeader("Authorization") String accessToken,
 		@PathVariable int couponId) {
