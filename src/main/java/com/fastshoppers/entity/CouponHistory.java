@@ -42,11 +42,11 @@ public class CouponHistory extends BaseEntity {
 	@Column(name = "coupon_uuid", nullable = false)
 	private String couponUuid;
 
-	@Column(name = "issue_date", nullable = false)
-	private LocalDateTime issueDate;
+	@Column(name = "issue_date_at", nullable = false)
+	private LocalDateTime issueDateAt;
 
-	@Column(name = "usage_date", nullable = true)
-	private LocalDateTime usageDate;
+	@Column(name = "usage_date_at", nullable = true)
+	private LocalDateTime usageDateAt;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "coupon_status", nullable = false)
