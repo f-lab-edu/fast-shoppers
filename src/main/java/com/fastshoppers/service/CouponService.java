@@ -142,7 +142,7 @@ public class CouponService {
 			.member(member)
 			.coupon(coupon)
 			.couponUuid(couponUuid)
-			.issueDate(LocalDateTime.now())
+			.issueDateAt(LocalDateTime.now())
 			.couponStatus(CouponStatus.ACTIVE)
 			.build();
 
