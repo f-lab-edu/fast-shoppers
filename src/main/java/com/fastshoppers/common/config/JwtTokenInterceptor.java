@@ -13,15 +13,26 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtTokenInterceptor implements HandlerInterceptor {
 
+	private final JwtUtil jwtUtil;
+
 	@Autowired
-	private JwtUtil jwtUtil;
+	public JwtTokenInterceptor(JwtUtil jwtUtil) {
+		this.jwtUtil = jwtUtil;
+	}
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
 		Exception {
+		
+		String authorizationHeader = request.getHeader("Authorization");
+
+		// Authorization 헤더가 없는 경우 건너 뛰기
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			return true;
+		}
 
 		// 요청 헤더에서 토큰 추출
-		String token = request.getHeader("Authorization").replace("Bearer ", "");
+		String token = authorizationHeader.replace("Bearer ", "");
 
 		// 토큰의 유효성 검증
 		if (jwtUtil.isTokenExpired(token)) {
