@@ -14,7 +14,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fastshoppers.exception.logger.ExceptionLogger;
+import com.fastshoppers.common.exception.logger.ExceptionLogger;
 import com.fastshoppers.service.InventoryService;
 
 @ExtendWith(SpringExtension.class)

@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fastshoppers.common.ResponseMessage;
-import com.fastshoppers.exception.InvalidTokenException;
+import com.fastshoppers.common.exception.InvalidTokenException;
+import com.fastshoppers.common.util.JwtUtil;
 import com.fastshoppers.model.CouponResponse;
 import com.fastshoppers.service.CouponService;
-import com.fastshoppers.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 

@@ -6,7 +6,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fastshoppers.exception.CouponNotFoundException;
+import com.fastshoppers.common.exception.CouponNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 

@@ -6,13 +6,13 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.common.CouponStatus;
+import com.fastshoppers.common.exception.CouponAlreadyIssuedException;
+import com.fastshoppers.common.exception.CouponNotFoundException;
+import com.fastshoppers.common.exception.CouponShortageException;
+import com.fastshoppers.common.exception.MemberNotFoundException;
 import com.fastshoppers.entity.Coupon;
 import com.fastshoppers.entity.CouponHistory;
 import com.fastshoppers.entity.Member;
-import com.fastshoppers.exception.CouponAlreadyIssuedException;
-import com.fastshoppers.exception.CouponNotFoundException;
-import com.fastshoppers.exception.CouponShortageException;
-import com.fastshoppers.exception.MemberNotFoundException;
 import com.fastshoppers.model.CouponResponse;
 import com.fastshoppers.repository.CouponHistoryRepository;
 import com.fastshoppers.repository.CouponRepository;

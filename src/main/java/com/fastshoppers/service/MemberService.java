@@ -4,22 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fastshoppers.common.exception.DuplicateEmailException;
+import com.fastshoppers.common.exception.InvalidPasswordException;
+import com.fastshoppers.common.exception.LoginFailException;
+import com.fastshoppers.common.exception.MemberNotFoundException;
+import com.fastshoppers.common.util.JwtUtil;
+import com.fastshoppers.common.util.PasswordEncryptionUtil;
+import com.fastshoppers.common.util.SaltUtil;
 import com.fastshoppers.entity.Member;
-import com.fastshoppers.exception.DuplicateEmailException;
-import com.fastshoppers.exception.InvalidPasswordException;
-import com.fastshoppers.exception.LoginFailException;
-import com.fastshoppers.exception.MemberNotFoundException;
 import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
-import com.fastshoppers.util.JwtUtil;
-import com.fastshoppers.util.PasswordEncryptionUtil;
+
 import lombok.RequiredArgsConstructor;
-import com.fastshoppers.util.SaltUtil;
 
 @Service
 @RequiredArgsConstructor
@@ -114,5 +114,14 @@ public class MemberService {
 	 */
 	public void logout(MemberRequest memberRequest) {
 		authTokenRedisService.deleteRefreshToken(memberRequest.getEmail());
+	}
+
+	/**
+	 * @description : 이메일을 반환하는 메서드.
+	 * @param email
+	 * @return
+	 */
+	public Member getMemberByEmail(String email) {
+		return memberRepository.findByEmail(email);
 	}
 }

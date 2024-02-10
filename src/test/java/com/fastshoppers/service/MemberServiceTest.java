@@ -3,7 +3,6 @@ package com.fastshoppers.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,17 +10,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.fastshoppers.common.exception.DuplicateEmailException;
+import com.fastshoppers.common.exception.InvalidPasswordException;
+import com.fastshoppers.common.exception.LoginFailException;
+import com.fastshoppers.common.exception.MemberNotFoundException;
+import com.fastshoppers.common.util.JwtUtil;
+import com.fastshoppers.common.util.PasswordEncryptionUtil;
+import com.fastshoppers.common.util.SaltUtil;
 import com.fastshoppers.entity.Member;
-import com.fastshoppers.exception.DuplicateEmailException;
-import com.fastshoppers.exception.InvalidPasswordException;
-import com.fastshoppers.exception.LoginFailException;
-import com.fastshoppers.exception.MemberNotFoundException;
 import com.fastshoppers.model.MemberRequest;
 import com.fastshoppers.model.TokenResponse;
 import com.fastshoppers.repository.MemberRepository;
-import com.fastshoppers.util.JwtUtil;
-import com.fastshoppers.util.PasswordEncryptionUtil;
-import com.fastshoppers.util.SaltUtil;
 
 @ExtendWith(MockitoExtension.class)
 public class MemberServiceTest {

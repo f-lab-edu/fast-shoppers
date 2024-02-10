@@ -1,4 +1,4 @@
-package com.fastshoppers.exception;
+package com.fastshoppers.common.exception;
 
 import org.springframework.http.HttpStatus;
 
