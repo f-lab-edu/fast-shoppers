@@ -58,4 +58,19 @@ public class CouponRedisService {
 		}
 	}
 
+	/**
+	 * @description: coupon을 생성한다.
+	 * @param couponId
+	 * @param totalQuantity
+	 */
+	public void createCoupon(int couponId, Integer totalQuantity) {
+		RAtomicLong stockCount = redissonClient.getAtomicLong(couponStockKey + couponId);
+		RLock lock = redissonClient.getLock(couponLockKey + couponId);
+		lock.lock();
+		try {
+			stockCount.set(totalQuantity);
+		} finally {
+			lock.unlock();
+		}
+	}
 }
