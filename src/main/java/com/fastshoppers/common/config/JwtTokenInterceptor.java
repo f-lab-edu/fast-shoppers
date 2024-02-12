@@ -1,6 +1,5 @@
 package com.fastshoppers.common.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -9,21 +8,18 @@ import com.fastshoppers.common.util.JwtUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Component
 public class JwtTokenInterceptor implements HandlerInterceptor {
 
 	private final JwtUtil jwtUtil;
 
-	@Autowired
-	public JwtTokenInterceptor(JwtUtil jwtUtil) {
-		this.jwtUtil = jwtUtil;
-	}
-
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws
 		Exception {
-		
+
 		String authorizationHeader = request.getHeader("Authorization");
 
 		// Authorization 헤더가 없는 경우 건너 뛰기
