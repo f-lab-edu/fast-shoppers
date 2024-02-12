@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.fastshoppers.common.CouponStatus;
+import com.fastshoppers.common.DiscountType;
 import com.fastshoppers.common.exception.CouponAlreadyIssuedException;
 import com.fastshoppers.common.exception.CouponNotFoundException;
 import com.fastshoppers.common.exception.CouponShortageException;
@@ -13,6 +14,7 @@ import com.fastshoppers.common.exception.MemberNotFoundException;
 import com.fastshoppers.entity.Coupon;
 import com.fastshoppers.entity.CouponHistory;
 import com.fastshoppers.entity.Member;
+import com.fastshoppers.model.CouponCreateRequest;
 import com.fastshoppers.model.CouponResponse;
 import com.fastshoppers.repository.CouponHistoryRepository;
 import com.fastshoppers.repository.CouponRepository;
@@ -49,10 +51,12 @@ public class CouponService {
 	 */
 	@Transactional
 	public CouponResponse issueCouponToMember(int couponId, String email) {
-		validateCouponAvailabilty(couponId, email); // 쿠폰 발급 validation 체크 
 
 		Member member = getMemberByEmail(email); // 이메일로 멤버 조회
+
 		Coupon coupon = getCouponById(couponId); // 쿠폰 id로 쿠폰 조회
+
+		validateCouponAvailabilty(couponId, email); // 쿠폰 발급 validation 체크
 
 		decreaseCouponStock(coupon); // 쿠폰 감소 로직
 
@@ -152,4 +156,32 @@ public class CouponService {
 		return couponUuid;
 	}
 
+	/**
+	 * @descriptoon : 테스트 발급 용도로, 신규 쿠폰을 생성한다.
+	 * @param couponCreateRequest
+	 */
+	@Transactional
+	public Coupon createCoupon(CouponCreateRequest couponCreateRequest) {
+		DiscountType discountType = DiscountType.fromString(couponCreateRequest.getDiscountType());
+
+		Coupon coupon = Coupon.builder()
+			.validStartDate(couponCreateRequest.getValidStartDateAt())
+			.validEndDate(couponCreateRequest.getValidEndDateAt())
+			.discountType(discountType)
+			.discountValue(couponCreateRequest.getDiscountValue())
+			.totalQuantity(couponCreateRequest.getTotalQuantity())
+			.remainingQuantity(couponCreateRequest.getTotalQuantity())
+			.maxRedemption(couponCreateRequest.getMaxRedemption())
+			.eventStartDate(couponCreateRequest.getEventStartDate())
+			.eventEndDate(couponCreateRequest.getEventEndDate())
+			.couponName(couponCreateRequest.getCouponName())
+			.build();
+
+		couponRepository.save(coupon);
+
+		// Redis에도 반영
+		couponRedisService.createCoupon(coupon.getId(), couponCreateRequest.getTotalQuantity());
+
+		return coupon;
+	}
 }
