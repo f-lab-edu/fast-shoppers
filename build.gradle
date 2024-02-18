@@ -22,6 +22,12 @@ repositories {
 	mavenCentral()
 }
 
+bootRun {
+	if (project.hasProperty('profile')) {
+		args = ["--spring.profiles.active=${profile}"]
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2'
