@@ -4,9 +4,9 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
+import com.fastshoppers.common.exception.InventoryShortageException;
+import com.fastshoppers.common.exception.ProductEntityNotFoundException;
 import com.fastshoppers.entity.Product;
-import com.fastshoppers.exception.InventoryShortageException;
-import com.fastshoppers.exception.ProductEntityNotFoundException;
 import com.fastshoppers.repository.ProductRepository;
 
 import jakarta.transaction.Transactional;

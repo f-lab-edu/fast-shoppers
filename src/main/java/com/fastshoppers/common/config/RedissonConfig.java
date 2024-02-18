@@ -1,4 +1,4 @@
-package com.fastshoppers.config;
+package com.fastshoppers.common.config;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

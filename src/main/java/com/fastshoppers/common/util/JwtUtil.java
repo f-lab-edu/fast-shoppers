@@ -1,4 +1,4 @@
-package com.fastshoppers.util;
+package com.fastshoppers.common.util;
 
 import java.util.Date;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class JwtUtil {
 	public Date getExpirationFromToken(String token) {
 		Claims claims = getAllClaimsFromToken(token);
 
-		return claims.get("expiration", Date.class);
+		return claims.getExpiration();
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class JwtUtil {
 	 * @param token
 	 * @return
 	 */
-	private Claims getAllClaimsFromToken(String token) {
+	public Claims getAllClaimsFromToken(String token) {
 		return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
 	}
 
@@ -79,7 +79,7 @@ public class JwtUtil {
 	 * @param token
 	 * @return boolean val
 	 */
-	private boolean isTokenExpired(String token) {
+	public boolean isTokenExpired(String token) {
 		Date expiration = getExpirationFromToken(token);
 		return expiration.before(new Date());
 	}

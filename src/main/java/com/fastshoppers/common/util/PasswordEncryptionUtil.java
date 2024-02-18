@@ -1,4 +1,4 @@
-package com.fastshoppers.util;
+package com.fastshoppers.common.util;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
