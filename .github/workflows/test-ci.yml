@@ -11,19 +11,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ROOT_PASSWORD: fast-shoppers
-          MYSQL_DATABASE: fast-shoppers-db
-        ports:
-          - 3307:3306
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
@@ -32,28 +19,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 모든 컨테이너 중지 및 제거
-        run: |
-          docker stop $(docker ps -a -q)
-          docker rm $(docker ps -a -q)
-
-      - name: 도커 이미지 캐시 제거
-        run: docker-compose -f docker-compose.yml build --no-cache
-
-      - name: 도커 컴포즈 환경 정리
-        run: docker-compose -f docker-compose.yml down
-
-      - name: 도커 컴포즈 셋업
-        run: docker-compose -f docker-compose.yml up -d
-
       - name: gradle 명령 실행을 위해 권한 부여
         run: chmod +x ./gradlew
 
       - name: 그래들 build
-        run: ./gradlew build
+        run: ./gradlew build -Pprofile=test
 
       - name: 테스트 실행
-        run: ./gradlew test
+        run: ./gradlew test -Pprofile=test
 
       - name: 테스트 결과 저장
         uses: actions/upload-artifact@v3
@@ -78,6 +51,3 @@ jobs:
           check_for_duplicate_msg: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 도커 컴포즈 셧다운
-        run: docker-compose -f docker-compose.yml down
