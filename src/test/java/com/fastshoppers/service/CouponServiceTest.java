@@ -1,20 +1,23 @@
 package com.fastshoppers.service;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.BDDMockito.*;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
 
+import com.fastshoppers.entity.Coupon;
+import com.fastshoppers.entity.Member;
+import com.fastshoppers.model.CouponResponse;
 import com.fastshoppers.repository.CouponHistoryRepository;
 import com.fastshoppers.repository.CouponRepository;
 import com.fastshoppers.repository.MemberRepository;
 
-@SpringBootTest
 public class CouponServiceTest {
 
 	@Mock
@@ -49,4 +52,33 @@ public class CouponServiceTest {
 		assertEquals(expectedStock, stock);
 	}
 
+	@Test
+	void whenIssueCouponToMember_thenIssueCoupon() {
+		int couponId = 1;
+		String email = "test@google.com";
+
+		Member mockMember = new Member();
+		mockMember.setEmail(email);
+		Coupon mockCoupon = new Coupon();
+		mockCoupon.setRemainingQuantity(10);
+		mockCoupon.setTotalQuantity(10);
+
+		given(memberRepository.findByEmail(email)).willReturn(mockMember);
+		given(couponRepository.findById(couponId)).willReturn(Optional.of(mockCoupon));
+		given(couponRedisService.issueCoupon(couponId)).willReturn(true);
+
+		CouponResponse couponResponse = couponService.issueCouponToMember(couponId, email);
+
+		assertNotNull(couponResponse);
+		assertEquals(9, couponResponse.getRemainingStock());
+
+
+		then(couponRepository).should(times(1)).save(any(Coupon.class));
+		then(couponRedisService).should(times(1)).issueCoupon(couponId);
+
+	}
+
+
+
 }
+

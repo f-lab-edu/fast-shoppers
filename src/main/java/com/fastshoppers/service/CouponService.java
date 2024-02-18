@@ -1,6 +1,7 @@
 package com.fastshoppers.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -52,7 +53,11 @@ public class CouponService {
 	@Transactional
 	public CouponResponse issueCouponToMember(int couponId, String email) {
 
-		Member member = getMemberByEmail(email); // 이메일로 멤버 조회
+		Member member = memberRepository.findByEmail(email);
+
+		if (member == null) {
+			throw new MemberNotFoundException();
+		}
 
 		Coupon coupon = getCouponById(couponId); // 쿠폰 id로 쿠폰 조회
 
@@ -93,21 +98,6 @@ public class CouponService {
 	 */
 	private boolean isCouponAlreadyIssued(int couponId, String email) {
 		return couponHistoryRepository.findByCouponIdAndMemberEmailAndDeleteYn(couponId, email, false) != null;
-	}
-
-	/**
-	 * @description : email로 회원 조회
-	 * @param email
-	 * @return
-	 */
-	private Member getMemberByEmail(String email) {
-		Member member = memberRepository.findByEmail(email);
-
-		if (member == null) {
-			throw new MemberNotFoundException();
-		}
-
-		return member;
 	}
 
 	/**
